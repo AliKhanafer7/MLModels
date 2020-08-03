@@ -1,48 +1,73 @@
 import numpy as np
-# This class will perform linear regression with Ordinary Least Squares. The most pertinent information I got while researching this fitting technique came from
-# https://towardsdatascience.com/understanding-the-ols-method-for-simple-linear-regression-e0a4e8f692cc
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# This class will perform linear regression with Ordinary Least Squares.
+# Article for single variable OLS: https://towardsdatascience.com/understanding-the-ols-method-for-simple-linear-regression-e0a4e8f692cc
+# Article for multivariable OLS: https://medium.com/analytics-vidhya/multivariate-linear-regression-from-scratch-using-ols-ordinary-least-square-estimator-859646708cd6
 
 class LinearRegression():
-    coef_ = [] # Estimated coefficients for the linear regression problem. coef_[0] holds the value of the slope while coef_[1] holds the value of the y intercept
+    coef_ = np.array([]) # Estimated coefficients for the OLS problem
+    
+    # Fit using the training data
     def fit(self, X,y):
-        self.coef_ += [self.get_slope(X,y)]
-        self.coef_ += [self.get_intercept(X,y,self.coef_[0])]
-
-    # Calculates the slope of the linear regression problem. The equation used is one that will minimize the value of the slope and give us the smallest error.
-    # We get this equation when deriving the equation of the squared error and setting its value to 0. See the above article for further explanation.
-    def get_slope(self,X, y):
-        avg_X = sum(X)/len(X)
-        avg_y = sum(y)/len(y)
-        numerator = 0
-        denomenator = 0
-        for i in range(len(X)):
-            numerator += (X[i] - avg_X)*(y[i] - avg_y)
-        for i in range(len(X)):
-            denomenator += (X[i] - avg_X)*(X[i] - avg_X)
-        return numerator/denomenator
-
-    # Calculates the intercept of the linear regression problem. The equation used is one that will minimize the value of the intercept and give us the smallest error.
-    # We get this equation when deriving the equation of the squared error and setting its value to 0. See the above article for further explanation.
-    def get_intercept(self, X, y, m):
-        avg_X = sum(X)/len(X)
-        avg_y = sum(y)/len(y)
-        return avg_y - m*avg_X
+        transpose_X = np.transpose(X) # Find the transpose of X
+        
+        lhs = np.linalg.inv(np.dot(transpose_X,X)) # Find the inverse of X.T * X. Problem if X.T * X is not singular (not invertible)
+        rhs = np.dot(transpose_X,y) # Find X.T * y.
+        
+        # Calculates (inv(X.t*X))*(X*y). You get this equation by deriving the squared error equation and setting it to zero, 
+        # which will lead to a minimal error since it's a quadratic equation.
+        self.coef_ = np.dot(lhs,rhs) 
 
     def get_params(self, deep=True):
         return self.coef_
     
+    # Use the coef_ calculated fitting to predict y
     def predict(self, X):
-        predictions = []
-        for xi in X:
-            predictions += [self.coef_[0]*xi + self.coef_[1]]
-        return predictions 
+        return np.dot(X,self.coef_)
 
+    # Calculate the coefficient of determination.
+    # The coefficient of determination (r^2) is a value between 0 and 1. 
+    # The closer to 1, the better your model and the more correlation there is between you independent and dependent variable
     def score(self, X, y, sample_weights = None):
-        return None
+        predictions = self.predict(X)
+        squared_error_regression_line = np.square(np.subtract(y,predictions)).sum()
+        total_squared_error = np.square(np.subtract(np.mean(y),predictions)).sum()
+        print((squared_error_regression_line/total_squared_error))
+        return 1 - (squared_error_regression_line/total_squared_error)
 
     def set_params(self, **params):
         return None
+    
+    def add_bias(self,X):
+        num_rows, num_columns = X.shape
+        ones = np.ones((num_rows,1))
+        return np.concatenate((ones, X), axis=1)
 
+# TODO fix testing and double check implementation
+# *********** MAIN ***********
 lr = LinearRegression()
-lr.fit([0,1,2],[0,1,2])
-print(lr.coef_)
+df = pd.read_csv('../../data/car_data.csv')
+
+# Get first 50 rows for training
+X_train = lr.add_bias(df.iloc[:292,1:8]) 
+y_train = df.iloc[:292,0]
+
+# Get second 50 rows for training
+X_test = lr.add_bias(df.iloc[292:,1:8])
+y_test = df.iloc[292:,0]
+
+# Train model
+lr.fit(X_train,y_train)
+
+# Predict
+predictions = lr.predict(X_test)
+
+# Draw 
+plt.figure(figsize=(10,5))
+plt.title('Multivariate linear regression for Test data',fontsize=16)
+plt.grid(True)
+plt.plot(y_test , color='purple')
+plt.plot(predictions , color='red')
+plt.show()
