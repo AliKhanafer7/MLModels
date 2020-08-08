@@ -30,44 +30,58 @@ class LinearRegression():
     # Calculate the coefficient of determination.
     # The coefficient of determination (r^2) is a value between 0 and 1. 
     # The closer to 1, the better your model and the more correlation there is between you independent and dependent variable
-    def score(self, X, y, sample_weights = None):
-        predictions = self.predict(X)
-        squared_error_regression_line = np.square(np.subtract(y,predictions)).sum()
-        total_squared_error = np.square(np.subtract(np.mean(y),predictions)).sum()
-        print((squared_error_regression_line/total_squared_error))
-        return 1 - (squared_error_regression_line/total_squared_error)
+    # Note: With the testing data I get a negative value, this shows me that my model needs more training
+    def score(self, predictions, y, sample_weights = None):
+        residual_sum_squares = np.sum(np.square(np.subtract(y,predictions)))
+        total_sum_squares = np.sum(np.square(np.subtract(y,np.mean(y))))
+        return 1 - (residual_sum_squares/total_sum_squares)
 
-    def set_params(self, **params):
-        return None
-    
+    # Add column of 1s for the intercept b0
     def add_bias(self,X):
         num_rows, num_columns = X.shape
         ones = np.ones((num_rows,1))
         return np.concatenate((ones, X), axis=1)
+        
+    
 
-# TODO fix testing and double check implementation
 # *********** MAIN ***********
 lr = LinearRegression()
-df = pd.read_csv('../../data/car_data.csv')
+df=pd.read_csv('../../data/car_data.csv')
+col=df.columns
+we=df.to_numpy()
+we=we[:,0:8]
+we=we.astype(np.float64)
+df.head()
 
-# Get first 50 rows for training
-X_train = lr.add_bias(df.iloc[:292,1:8]) 
-y_train = df.iloc[:292,0]
+xtrain=we[:292,1:8]
+ytrain=we[:292,0]
+xtest=we[292:,1:8]
+ytest=we[292:,0]
 
-# Get second 50 rows for training
-X_test = lr.add_bias(df.iloc[292:,1:8])
-y_test = df.iloc[292:,0]
 
-# Train model
-lr.fit(X_train,y_train)
+x_train=lr.add_bias(xtrain)
+lr.fit(x_train,ytrain)
+predictions = lr.predict(x_train)
+train_error=lr.score(predictions,ytrain)
+print('Training  Error for Multivariable regression is {}'.format(train_error))
 
-# Predict
-predictions = lr.predict(X_test)
+print('\n\n')
 
-# Draw 
+
+x_train=lr.add_bias(xtrain)
+x_test=lr.add_bias(xtest)
+b=lr.fit(x_train,ytrain)
+predictions = lr.predict(x_test)
+test_error=lr.score(predictions,ytest)
+print('Testing Error for Multivariable regression is {}'.format(test_error))
+
+x_train=lr.add_bias(xtrain)
+x_test=lr.add_bias(xtest)
+b=lr.fit(x_train,ytrain)
+test_predict=lr.predict(x_test)
 plt.figure(figsize=(10,5))
 plt.title('Multivariate linear regression for Test data',fontsize=16)
 plt.grid(True)
-plt.plot(y_test , color='purple')
-plt.plot(predictions , color='red')
+plt.plot(ytest , color='purple')
+plt.plot(test_predict , color='red'  )
 plt.show()
