@@ -57,6 +57,8 @@ class LinearRegression():
         ones = np.ones((num_rows,1))
         return np.concatenate((ones, X), axis=1)
     
+    # Remove categorical columns for now
+    #TODO find a way to deal with categorical variables
     def remove_categorical_cols(self, df):
         types = df.dtypes
         cols = df.columns
