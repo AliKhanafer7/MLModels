@@ -8,7 +8,7 @@ from sklearn.datasets import load_boston
 # Article for Ridge regression: https://towardsdatascience.com/ridge-regression-for-better-usage-2f19b3a202db
 class Ridge():
     coef_ = np.array([]) # Estimated coefficients
-    alpha = 0.1
+    alpha = 0.5
     def fit(self, X, y):
         transpose_X = np.transpose(X) # Find the transpose of X
         error = np.add(self.alpha,np.identity(transpose_X.shape[0]))
