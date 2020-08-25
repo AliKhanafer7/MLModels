@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 # Article for single variable OLS: https://towardsdatascience.com/understanding-the-ols-method-for-simple-linear-regression-e0a4e8f692cc
 # Article for multivariable OLS: https://medium.com/analytics-vidhya/multivariate-linear-regression-from-scratch-using-ols-ordinary-least-square-estimator-859646708cd6
 
-class LinearRegression():
+class LinearRegression:
     coef_ = np.array([]) # Estimated coefficients
     
     # Fit using the training data

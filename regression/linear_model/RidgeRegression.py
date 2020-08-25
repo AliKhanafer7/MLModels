@@ -1,14 +1,16 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.datasets import load_boston
 
 # This class will perform Ridge regression.
 # Ridge is basically the same as OLS except it adds an error to the features in an attempt to reduce bias and over fitting
+# Ridge regression is a type of supervised learning
 # Article for Ridge regression: https://towardsdatascience.com/ridge-regression-for-better-usage-2f19b3a202db
-class Ridge():
+class Ridge:
     coef_ = np.array([]) # Estimated coefficients
-    alpha = 0.5
+
+    def __init__(self, alpha):
+        self.alpha = alpha
     def fit(self, X, y):
         transpose_X = np.transpose(X) # Find the transpose of X
         error = np.add(self.alpha,np.identity(transpose_X.shape[0]))
@@ -65,7 +67,7 @@ class Ridge():
 
 # *********** MAIN ***********
 # *********** House data testing ***********
-ridge = Ridge()
+ridge = Ridge(alpha=1)
 training_df = pd.read_csv('../../data/house_data.csv')
 data = ridge.remove_categorical_cols(training_df)
 columns_means = data.mean()
@@ -117,7 +119,7 @@ print('\n\n')
 # *********** Car data testing ***********
 
 # Prepare data
-ridge = Ridge()
+ridge = Ridge(alpha=0.5)
 training_df = pd.read_csv('../../data/car_data.csv')
 data = ridge.remove_categorical_cols(training_df)
 columns_means = data.mean()
