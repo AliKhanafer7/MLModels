@@ -8,6 +8,10 @@ This project uses [Pipenv](https://pipenv-fork.readthedocs.io/en/latest/) to man
 ```
 pipenv install
 ```
+Then access your newly created virtual environment and run all the code from within
+```
+pipenv shell
+```
 ## Usage
 The code is seperated into three parts:
 1. Regression models (Ex. Linear Regression)
